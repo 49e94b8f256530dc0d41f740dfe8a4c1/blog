@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "How to deploy a Jekyll blog using sourcehut builds.sr.ht tutorial"
+title:  "Deploying a Jekyll blog with sourcehut"
 date:   2020-12-07 10:22:24 -0600
 categories: jekyll sourcehut build.sr.ht
 ---
