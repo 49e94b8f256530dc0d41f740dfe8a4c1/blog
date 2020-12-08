@@ -1,21 +1,52 @@
 ---
 layout: post
-title:  "Deploying a Jekyll blog using sourcehut"
+title:  "Tutorial: Deploying a Jekyll blog using sourcehut's builds.sr.ht"
 date:   2020-12-07 10:22:24 -0600
-categories: jekyll sourcehut
+categories: jekyll sourcehut build.sr.ht
 ---
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+### Introduction.
 
-Jekyll requires blog post files to be named according to the following format:
+This tutorial aims at helping you deploy a Jekyll blog inside a git repo to a GNU/Linux server with the help of <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a>.
 
-`YEAR-MONTH-DAY-title.MARKUP`
+#### Prerequisites
 
-Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit numbers, and `MARKUP` is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+1. GNU/Linux Server - hosts your blog
+2. Jekyll blog `git` repo - on any git server provider; Sourcehut, Github, Gitlab etc.
+3. A <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a> account.
 
-Jekyll also offers powerful support for code snippets:
+### Defining the build manifest
 
-{% highlight bash %}
-$ docker-compose run jekyll /bin/bash
+Much like `travis.yml` or `circle.yml` files, build manifests define how <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a> will build, test and deploy your application. A quick rundown on build manifests can be found here https://man.sr.ht/builds.sr.ht/#build-manifests. The relevant build manifest is shown below.
+
+{% highlight yaml %}
+image: archlinux
+sources:
+  - 'git@github.com:49e94b8f256530dc0d41f740dfe8a4c1/blog.git'
+secrets:
+  - 9f4e9cb9-f642-427b-96e1-c6fc6a5781f8
+  - b03d783e-d793-479d-8558-082abb0ab74a 
+  - 7619d574-cfe1-4a08-9a1d-df3a5499c31e
+packages:
+  - jekyll
+  - rubygems
+tasks:
+  - setup: |
+      jekyll -v
+      gem install bundler
+  - build: |
+      cd blog
+      echo $GEM_HOME
+      PATH=$PATH:$HOME/.gem/ruby/2.7.0/bin
+      bundle install
+      bundle exec jekyll build
+  - deploy: |
+      cd blog
+      DEPLOY_HOST=168.119.234.216
+      DEPLOY_USER=ken
+      eval `ssh-agent`
+      ssh-add ~/.ssh/b03d783e-d793-479d-8558-082abb0ab74a
+      ln -s ~/.ssh/7619d574-cfe1-4a08-9a1d-df3a5499c31e ~/.ssh/id_rsa.pub
+      scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
 {% highlight bash %}
