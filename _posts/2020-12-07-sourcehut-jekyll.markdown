@@ -1,31 +1,31 @@
 ---
 layout: post
-title:  "Tutorial: Deploying a Jekyll blog using sourcehut's builds.sr.ht"
+title:  "How to deploy a Jekyll blog using sourcehut builds.sr.ht tutorial"
 date:   2020-12-07 10:22:24 -0600
 categories: jekyll sourcehut build.sr.ht
 ---
 ### Introduction.
 
-This tutorial aims at helping you deploy a Jekyll blog inside a git repo to a GNU/Linux server with the help of <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a>.
+This tutorial shows how to deploy a Jekyll blog inside a git repo to a GNU/Linux server with the help of [builds.sr.ht][builds.sr.ht]{:target="_blank"}
 
 #### Prerequisites
 
 1. GNU/Linux Server - hosts your blog
 2. Jekyll blog `git` repo - on any git server provider; Sourcehut, Github, Gitlab etc.
-3. A <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a> account.
+3. A [builds.sr.ht][builds.sr.ht]{:target="_blank"} account.
 
 ### Defining the build manifest
 
-Much like `travis.yml` or `circle.yml` files, build manifests define how <a href="https://builds.sr.ht/" target="_blank">builds.sr.ht</a> will build, test and deploy your application. A quick rundown on build manifests can be found here https://man.sr.ht/builds.sr.ht/#build-manifests. The relevant build manifest is shown below.
+Much like `travis.yml` or `circle.yml` files, [manifests][man.builds.sr.ht-build-manifests]{:target="_blank"} describe a build. The relevant build manifest is shown below.
 
 {% highlight yaml %}
 image: archlinux
 sources:
   - 'git@github.com:49e94b8f256530dc0d41f740dfe8a4c1/blog.git'
 secrets:
-  - 9f4e9cb9-f642-427b-96e1-c6fc6a5781f8
-  - b03d783e-d793-479d-8558-082abb0ab74a 
-  - 7619d574-cfe1-4a08-9a1d-df3a5499c31e
+  - <secret-uuid-1>
+  - <secret-uuid-2>
+  - <secret-uuid-3>
 packages:
   - jekyll
   - rubygems
@@ -35,34 +35,116 @@ tasks:
       gem install bundler
   - build: |
       cd blog
-      echo $GEM_HOME
-      PATH=$PATH:$HOME/.gem/ruby/2.7.0/bin
-      bundle install
-      bundle exec jekyll build
+      GEM_DIR="$(ruby -e 'puts Gem.user_dir')"
+      $GEM_DIR/bin/bundle install
+      $GEM_DIR/bin/bundle exec jekyll build
   - deploy: |
       cd blog
-      DEPLOY_HOST=168.119.234.216
-      DEPLOY_USER=ken
+      DEPLOY_HOST=<host>
+      DEPLOY_USER=<user>
       eval `ssh-agent`
       ssh-add ~/.ssh/b03d783e-d793-479d-8558-082abb0ab74a
       ln -s ~/.ssh/7619d574-cfe1-4a08-9a1d-df3a5499c31e ~/.ssh/id_rsa.pub
       scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
+Although a general description of the build manifest schema can be found [here][man.builds.sr.ht-build-manifests]{:target="_blank"}, I'll continue by detailing the Jekyll specific configuration options below.
+
+#### Image
+
+[builds.sr.ht][builds.sr.ht]{:target="_blank"} offers a ton of images to choose from. `archlinux` was chosen because of its relatively superior documentation and near vanilla/as close to possible to upstream packages.
+
+{% highlight yaml %}
+image: archlinux
+{% endhighlight %}
+
+#### Sources
+
+Specify what repo to clone. The `ssh` schema is used if the repo in question is private, otherwise use the `https` schema.
+
+{% highlight yaml %}
+sources:
+  - 'git@github.com:<username>/<repo>.git'
+{% endhighlight %}
+
+#### Secrets
+
+A YAML list of `uuid`s that point to secrets specified [here][builds.sr.ht-secrets]{:target="_blank"}. Secrets can be SSH, PGP keys or a file. 
+
+{% highlight yaml %}
+secrets:
+  - <secret-uuid-1>
+  - <secret-uuid-2>
+  - <secret-uuid-3>
+{% endhighlight %}
+
+For this build however, we are only interested in SSH secrets. We need the deploy server's public and private key.
+
+> Note:
+> 3 secret uuids are needed because the git repo is private. 
+> 
+> The private key needed for `git clone` therefore occupies the first slot. 
+> 
+> However, public repos just need 2 uuids i.e. the deploy server key pair.
+
+The first key on the list is linked to `~/.ssh/id_rsa`. Subsequent keys can be added using `ssh-add`.
+
+Generate a key pair with `ssh-keygen`. Do not use a passphrase when prompted.
+
 {% highlight bash %}
-$ jekyll new .
+ssh-keygen -t rsa
 {% endhighlight %}
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
+Copy the public key over to the deploy server with `ssh-copy-id`
+
+{% highlight bash %}
+ssh-copy-id -i ~/.ssh/id_rsa user@host
 {% endhighlight %}
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+#### Packages
 
+Install any packages needed as dependencies.
+
+{% highlight yaml %}
+packages:
+  - jekyll
+  - rubygems
+{% endhighlight %}
+
+This is the equivalent of
+
+{% highlight bash %}
+sudo pacman -S jekyll rubygems
+{% endhighlight %}
+
+#### Tasks
+
+YAML list of command line instructions needed to successfully run the build.
+
+{% highlight yaml %}
+tasks:
+  - setup: |
+      jekyll -v
+      gem install bundler
+  - build: |
+      cd blog
+      GEM_DIR="$(ruby -e 'puts Gem.user_dir')"
+      $GEM_DIR/bin/bundle install
+      $GEM_DIR/bin/bundle exec jekyll build
+  - deploy: |
+      cd blog
+      DEPLOY_HOST=<host>
+      DEPLOY_USER=<user>
+      eval `ssh-agent`
+      ssh-add ~/.ssh/<secret-uuid-2>
+      ln -s ~/.ssh/<secret-uuid-3> ~/.ssh/id_rsa.pub
+      scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
+{% endhighlight %}
+
+[builds.sr.ht]: https://builds.sr.ht
+[builds.sr.ht-secrets]: https://builds.sr.ht/secrets
+[man.builds.sr.ht-supported-images]: https://man.sr.ht/builds.sr.ht/compatibility.md
+[man.builds.sr.ht-build-manifests]: https://man.sr.ht/builds.sr.ht/#build-manifests
 [jekyll-docs]: https://jekyllrb.com/docs/home
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-talk]: https://talk.jekyllrb.com/
