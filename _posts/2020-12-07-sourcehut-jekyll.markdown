@@ -9,21 +9,21 @@ toc: true
 
 ---
 
-# Introduction
+## Introduction
 
 This tutorial shows how to deploy a Jekyll blog to a GNU/Linux server with the help of [builds.sr.ht][builds.sr.ht]{:target="\_blank"}
 
-## Prerequisites
+### Prerequisites
 
 1. GNU/Linux Server - hosts your blog
 2. Jekyll blog - hosted on any `git` server provider; Sourcehut, GitHub, GitLab etc.
 3. A [builds.sr.ht][builds.sr.ht]{:target="\_blank"} account.
 
-# Private repository
+## Private repositories
 
 The following section details how to achieve this with a private repo.
 
-## Defining the build manifest
+### Defining the build manifest
 
 Much like `travis.yml` or `circle.yml` files, [manifests][man.builds.sr.ht-build-manifests]{:target="\_blank"} describe a build. The relevant build manifest is shown below.
 
@@ -40,7 +40,7 @@ packages:
   - nodejs-lts-fermium
 tasks:
   - setup: |
-       if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
+      if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
         complete-build; \
       fi
       ruby -v
@@ -66,7 +66,7 @@ tasks:
 
 Although a general description of the build manifest schema can be found [here][man.builds.sr.ht-build-manifests]{:target="\_blank"}, I'll continue by detailing the Jekyll specific configuration options below.
 
-### Image
+#### Image
 
 [builds.sr.ht][builds.sr.ht]{:target="\_blank"} offers a ton of images to choose from. `archlinux` was chosen because of its relatively superior documentation and near vanilla/as close to possible to upstream packages.
 
@@ -74,7 +74,7 @@ Although a general description of the build manifest schema can be found [here][
 image: archlinux
 {% endhighlight %}
 
-### Sources
+#### Sources
 
 Specify what repo to clone. The `ssh` schema is used if the repo in question is private, otherwise use the `https` schema.
 
@@ -83,7 +83,7 @@ sources:
   - 'git@github.com:<username>/<repo>.git'
 {% endhighlight %}
 
-### Secrets
+#### Secrets
 
 A YAML list of `uuid`s that point to secrets specified [here][builds.sr.ht-secrets]{:target="\_blank"}. Secrets can be SSH, PGP keys or files.
 
@@ -113,7 +113,7 @@ Copy the public key over to the deploy server with `ssh-copy-id`
 > NOTE:
 > The private key needed for `git clone` should occupy the first slot.
 
-### Packages
+#### Packages
 
 Install any packages needed as dependencies.
 
@@ -129,13 +129,16 @@ This is the equivalent of
   sudo pacman -S ruby nodejs-lts-fermium
 {% endhighlight %}
 
-### Tasks
+#### Tasks
 
 YAML list of command line instructions needed to successfully run the build.
 
 {% highlight yaml %}
   tasks:
     - setup: |
+        if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
+          complete-build; \
+        fi
         ruby -v
         gem -v
         export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
@@ -157,7 +160,7 @@ YAML list of command line instructions needed to successfully run the build.
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
-# Public repositories
+## Public repositories
 
 ### Defining the build manifest
 
@@ -194,7 +197,7 @@ YAML list of command line instructions needed to successfully run the build.
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
-#### Sources
+##### Sources
 
 Specify what repo to clone. The `https` schema is used to define the repo URL.
 
@@ -203,7 +206,7 @@ sources:
   - 'https://github.com/<username>/<repo>.git'
 {% endhighlight %}
 
-#### Secrets
+##### Secrets
 
 Public repos just need 2 uuids i.e. the deploy server key pair.
 
