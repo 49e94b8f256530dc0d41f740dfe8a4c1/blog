@@ -1,9 +1,15 @@
 ---
 ---
 
-// Customization Variables
+// Highlight JS Solarized Light Theme
+@import "./../assets/css/highlight-js/solarized-light.css";
 
-$accent: #ff0f00;
+// Solarized Dark
+$accent: #b58900;
+$background-colour: #002b36;
+$site-title-colour: #cb4b16;
+$content-colour: #abb6b9;
+$cyan: #2aa198;
 
 $max-width: 740px;
 $med-width: 600px;
@@ -13,25 +19,33 @@ $small-width: 480px;
 
 body {
   margin: 0;
-  font-family: "Inconsolata";
-  background-color: #ffffdd;
+  font-family: Helvetica, sans-serif;
+  background-color: $background-colour;
+  color: $content-colour;
   min-height: 100%;
-}
-a {
-  text-decoration: none;
-  color: $accent;
-}
-a:hover {
-  text-decoration: underline;
-}
-hr {
-  margin: 5px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-code {
-  background-color: #d8e7ff;
-  color: #002b72;
+  a {
+    text-decoration: none;
+    color: $accent;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  hr {
+    margin: 5px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  code {
+    padding: 1px;
+    background-color: #d8e7ff;
+    color: #002b72;
+    border-radius: 1px;
+  }
+  // Colour titles
+  .page-title,
+  :is(h1, h2, h3, h4, h5, h6) {
+    color: $cyan;
+  }
 }
 
 // divs
@@ -64,7 +78,7 @@ code {
   padding: 30px 0 20px 0;
   .site-title {
     font-size: 32px;
-    color: #272727;
+    color: $site-title-colour;
     display: inline-block;
   }
 }
@@ -75,7 +89,7 @@ code {
   margin-bottom: 1em;
   .title {
     max-width: 500px;
-    color: #272727;
+    color: $content-colour;
     display: inline-block;
     font-size: 30px;
   }
@@ -169,14 +183,6 @@ code {
 //  typography
 
 .content {
-  line-height: 1.5;
-  h1,
-  h2,
-  h3,
-  h4 {
-    margin-block-start: 2em !important;
-    margin-block-end: 0em !important;
-  }
   h1:after,
   h2:after,
   h3:after,
