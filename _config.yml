@@ -25,3 +25,7 @@ navbar:
 plugins:
   - jekyll-minifier
   - jekyll-seo-tag
+  - jekyll-minifier
+
+exclude:
+  - docker-compose.*
