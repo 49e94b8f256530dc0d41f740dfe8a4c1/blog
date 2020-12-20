@@ -30,7 +30,7 @@ Much like `travis.yml` or `circle.yml` files, [manifests][man.builds.sr.ht-build
 {% highlight yaml %}
 image: archlinux
 sources:
-  - 'git@github.com:49e94b8f256530dc0d41f740dfe8a4c1/blog.git'
+  - 'git@github.com:<username>/<repo>.git'
 secrets:
   - 9f4e9cb9-f642-427b-96e1-c6fc6a5781f8
   - b03d783e-d793-479d-8558-082abb0ab74a 
@@ -40,6 +40,9 @@ packages:
   - nodejs-lts-fermium
 tasks:
   - setup: |
+       if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
+        complete-build; \
+      fi
       ruby -v
       gem -v
       export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
@@ -56,8 +59,8 @@ tasks:
       DEPLOY_HOST=168.119.234.216
       DEPLOY_USER=ken
       eval `ssh-agent`
-      ssh-add ~/.ssh/b03d783e-d793-479d-8558-082abb0ab74a
-      ln -s ~/.ssh/7619d574-cfe1-4a08-9a1d-df3a5499c31e ~/.ssh/id_rsa.pub
+      ssh-add ~/.ssh/<secret-uuid-2>
+      ln -s ~/.ssh/<secret-uuid-3> ~/.ssh/id_rsa.pub
       scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
   {% endhighlight %}
 
@@ -157,6 +160,39 @@ YAML list of command line instructions needed to successfully run the build.
 # Public repositories
 
 ### Defining the build manifest
+
+{% highlight yaml %}
+  image: archlinux
+  sources:
+    - 'https://github.com/<username>/<repo>'
+  secrets:
+    - <secret-uuid-1>
+    - <secret-uuid-2>
+  packages:
+    - ruby
+    - nodejs-lts-fermium
+  tasks:
+    - setup: |
+        ruby -v
+        gem -v
+        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+        gem install --user-install bundler
+        cd blog
+        sudo chown -R $(whoami) ~/.gem/*
+        bundle install 
+    - build: |
+        cd blog
+        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+        bundle exec jekyll build
+    - deploy: |
+        cd blog
+        DEPLOY_HOST=168.119.234.216
+        DEPLOY_USER=ken
+        eval `ssh-agent`
+        ssh-add ~/.ssh/<secret-uuid-1>
+        ln -s ~/.ssh/<secret-uuid-2> ~/.ssh/id_rsa.pub
+        scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
+{% endhighlight %}
 
 #### Sources
 

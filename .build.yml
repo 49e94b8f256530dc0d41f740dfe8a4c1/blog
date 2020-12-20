@@ -1,8 +1,7 @@
 image: archlinux
 sources:
-  - "git@github.com:49e94b8f256530dc0d41f740dfe8a4c1/blog.git"
+  - "https://github.com/49e94b8f256530dc0d41f740dfe8a4c1/blog"
 secrets:
-  - 9f4e9cb9-f642-427b-96e1-c6fc6a5781f8
   - b03d783e-d793-479d-8558-082abb0ab74a
   - 7619d574-cfe1-4a08-9a1d-df3a5499c31e
 packages:
@@ -15,6 +14,7 @@ tasks:
       export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
       gem install --user-install bundler
       cd blog
+      sudo chown -R $(whoami) ~/.gem/*
       bundle install
   - build: |
       cd blog
