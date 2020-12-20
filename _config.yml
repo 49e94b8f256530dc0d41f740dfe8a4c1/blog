@@ -26,7 +26,7 @@ plugins:
   - jekyll-minifier
   - jekyll-seo-tag
   - jekyll-minifier
-
+  - jekyll-toc
 exclude:
   - docker-compose.*
   - .build.yml
