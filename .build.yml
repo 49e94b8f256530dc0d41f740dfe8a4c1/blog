@@ -9,6 +9,7 @@ packages:
   - nodejs-lts-fermium
 tasks:
   - setup: |
+      cd blog
       if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
         complete-build; \
       fi
@@ -16,7 +17,6 @@ tasks:
       gem -v
       export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
       gem install --user-install bundler
-      cd blog
       sudo chown -R $(whoami) ~/.gem/*
       bundle install
   - build: |
