@@ -9,6 +9,9 @@ packages:
   - nodejs-lts-fermium
 tasks:
   - setup: |
+      if [ "$(git rev-parse origin/develop)" != "$(git rev-parse HEAD)" ]; then \
+        complete-build; \
+      fi
       ruby -v
       gem -v
       export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
