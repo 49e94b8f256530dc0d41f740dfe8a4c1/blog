@@ -1,0 +1,23 @@
+---
+---
+
+@import "minima/skins/{{ site.minima.skin | default: 'classic' }}",
+  "minima/initialize";
+
+.post-title {
+  font-size: 2.4rem;
+}
+
+.post-content {
+  h1,
+  h2,
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.post-card {
+  a.title {
+    font-size: 1.5rem;
+  }
+}

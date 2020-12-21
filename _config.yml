@@ -1,26 +1,18 @@
 title: Ken's Blog
 author: Ken Okech
-subtitle: This is Ken's blog.
+description: This is Ken's blog.
 
 url: "https://blog.psr42.com"
 baseUrl: "/"
 
-footer_only_homepage: false
-footer_url: "https://github.com/49e94b8f256530dc0d41f740dfe8a4c1"
-footer_text: "Ken's Awesome Blog"
+theme: minima
 
-profile-picture: assets/profile.png
+minima:
+  skin: solarized-dark
 
-permalink: /:year-:month-:day-:title/
 sass:
   style: compressed
-  sass_dir: css
-
-navbar:
-  - name: "About"
-    link: "about"
-  - name: "Resume"
-    absolute-link: "https://pro-panda.github.io/resume.pdf"
+  sass_dir: scss
 
 plugins:
   - jekyll-minifier
@@ -28,5 +20,6 @@ plugins:
   - jekyll-minifier
   - jekyll-toc
 exclude:
-  - docker-compose.*
   - .build.yml
+  - docker-compose.*
+  - scss

@@ -1,12 +1,5 @@
 <head>
-  {% if page.title %} {% assign title = page.title | append: " - " | append:
-  site.title %} {% assign desc = page.subtitle %} {% else %} {% assign title =
-  site.title %} {% assign desc = site.subtitle %} {% endif %} {% assign sitedir
-  = site.url | append: site.baseurl | append: "/" %} {% assign favicon_location
-  = sitedir | append: site.favicon_location %}
-
   <title>{{ title }}</title>
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
@@ -14,15 +7,9 @@
     content="blog, {{ site.author }}, {{ site.title }}, jekyll"
   />
   <meta name="author" content="{{ site.author }}" />
-
   <meta name="description" content="{{ desc }}" />
-  <link
-    href="https://fonts.googleapis.com/css?family=Inconsolata:400,700"
-    rel="stylesheet"
-    type="text/css"
-  />
-  <link rel="stylesheet" href="{{ sitedir }}css/main.css" />
-  <!-- Favicon -->
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
+  <!-- Favicons -->
   <link rel="icon" type="image/ico" href="/assets/favicon/favicon.ico" />
   <link
     rel="shortcut-icon"
@@ -30,6 +17,7 @@
     href="/assets/favicon/favicon.ico"
   />
   <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+  <!-- END Favicons -->
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/highlight.min.js"></script>
   <script>
     hljs.initHighlightingOnLoad();
