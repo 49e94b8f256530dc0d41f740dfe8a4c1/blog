@@ -4,14 +4,52 @@
 @import "minima/skins/{{ site.minima.skin | default: 'classic' }}",
   "minima/initialize";
 
+$yellow: #b58900;
+$violet: #6c71c4;
+$green: #859900;
+$magenta: #d33682;
+$blue: #268bd2;
+$red: #dc322f;
+
+.post-header {
+  margin-bottom: 0;
+}
+
+.site-title {
+  color: $red;
+  &:visited {
+    color: $red;
+  }
+}
+
+li {
+  &.toc-entry {
+    a {
+      color: $blue;
+    }
+  }
+}
+
 .post-title {
   font-size: 2.4rem;
+  color: $green;
+}
+
+.page-subtitle {
+  color: $magenta;
+  a {
+    color: $magenta;
+  }
 }
 
 .post-content {
   h1,
   h2,
-  h3 {
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: $green;
     margin-top: 0;
   }
 }
@@ -19,5 +57,12 @@
 .post-card {
   a.title {
     font-size: 1.5rem;
+    color: $green;
+  }
+  .details {
+    color: $magenta;
+    a {
+      color: $magenta;
+    }
   }
 }
