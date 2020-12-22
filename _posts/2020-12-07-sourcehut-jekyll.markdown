@@ -56,8 +56,8 @@ tasks:
       bundle exec jekyll build
   - deploy: |
       cd blog
-      DEPLOY_HOST=168.119.234.216
-      DEPLOY_USER=ken
+      DEPLOY_HOST=156.116.53.2
+      DEPLOY_USER=myusername
       eval `ssh-agent`
       ssh-add ~/.ssh/<secret-uuid-2>
       ln -s ~/.ssh/<secret-uuid-3> ~/.ssh/id_rsa.pub
@@ -152,8 +152,8 @@ YAML list of command line instructions needed to successfully run the build.
         bundle exec jekyll build
     - deploy: |
         cd blog
-        DEPLOY_HOST=168.119.234.216
-        DEPLOY_USER=ken
+        DEPLOY_HOST=156.116.53.2
+        DEPLOY_USER=myusername
         eval `ssh-agent`
         ssh-add ~/.ssh/b03d783e-d793-479d-8558-082abb0ab74a
         ln -s ~/.ssh/7619d574-cfe1-4a08-9a1d-df3a5499c31e ~/.ssh/id_rsa.pub
