@@ -8,7 +8,7 @@ baseUrl: "/"
 theme: minima
 
 minima:
-  skin: solarized-dark
+  skin: dark
 
 sass:
   style: compressed
