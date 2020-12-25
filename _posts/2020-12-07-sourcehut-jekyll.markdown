@@ -19,6 +19,64 @@ This tutorial shows how to deploy a Jekyll blog to a GNU/Linux server with the h
 2. Jekyll blog - hosted on any `git` server provider; Sourcehut, GitHub, GitLab etc.
 3. A [builds.sr.ht][builds.sr.ht]{:target="\_blank"} account.
 
+## Public repositories
+
+The following section details how to achieve this with a public repo.
+
+### Defining the build manifest
+
+{% highlight yaml %}
+  image: archlinux
+  sources:
+    - 'https://github.com/<username>/<repo>'
+  secrets:
+    - <secret-uuid-1>
+    - <secret-uuid-2>
+  packages:
+    - ruby
+    - nodejs-lts-fermium
+  tasks:
+    - setup: |
+        ruby -v
+        gem -v
+        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+        gem install --user-install bundler
+        cd blog
+        sudo chown -R $(whoami) ~/.gem/*
+        bundle install 
+    - build: |
+        cd blog
+        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+        bundle exec jekyll build
+    - deploy: |
+        cd blog
+        DEPLOY_HOST=168.119.234.216
+        DEPLOY_USER=ken
+        eval `ssh-agent`
+        ssh-add ~/.ssh/<secret-uuid-1>
+        ln -s ~/.ssh/<secret-uuid-2> ~/.ssh/id_rsa.pub
+        scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
+{% endhighlight %}
+
+##### Sources
+
+Specify what repo to clone. The `https` schema is used to define the repo URL.
+
+{% highlight yaml %}
+sources:
+  - 'https://github.com/<username>/<repo>.git'
+{% endhighlight %}
+
+##### Secrets
+
+Public repos just need 2 uuids i.e. the deploy server key pair.
+
+{% highlight yaml %}
+secrets:
+  - <secret-uuid-1>
+  - <secret-uuid-2>
+{% endhighlight %}
+
 ## Private repositories
 
 The following section details how to achieve this with a private repo.
@@ -32,9 +90,9 @@ image: archlinux
 sources:
   - 'git@github.com:<username>/<repo>.git'
 secrets:
-  - 9f4e9cb9-f642-427b-96e1-c6fc6a5781f8
-  - b03d783e-d793-479d-8558-082abb0ab74a 
-  - 7619d574-cfe1-4a08-9a1d-df3a5499c31e
+    - <secret-uuid-1>
+    - <secret-uuid-2>
+    - <secret-uuid-3>
 packages:
   - ruby
   - nodejs-lts-fermium
@@ -107,7 +165,7 @@ Generate a key pair with `ssh-keygen`. Do not use a passphrase when prompted.
 Copy the public key over to the deploy server with `ssh-copy-id`
 
 {% highlight bash %}
-  ssh-copy-id -i ~/.ssh/id_rsa $DEPLOY_USER@DEPLOY_HOST
+  ssh-copy-id -i ~/.ssh/id_rsa $DEPLOY_USER@$DEPLOY_HOST
 {% endhighlight %}
 
 > NOTE:
@@ -160,61 +218,10 @@ YAML list of command line instructions needed to successfully run the build.
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
-## Public repositories
 
-### Defining the build manifest
+## Conclusion
 
-{% highlight yaml %}
-  image: archlinux
-  sources:
-    - 'https://github.com/<username>/<repo>'
-  secrets:
-    - <secret-uuid-1>
-    - <secret-uuid-2>
-  packages:
-    - ruby
-    - nodejs-lts-fermium
-  tasks:
-    - setup: |
-        ruby -v
-        gem -v
-        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
-        gem install --user-install bundler
-        cd blog
-        sudo chown -R $(whoami) ~/.gem/*
-        bundle install 
-    - build: |
-        cd blog
-        export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
-        bundle exec jekyll build
-    - deploy: |
-        cd blog
-        DEPLOY_HOST=168.119.234.216
-        DEPLOY_USER=ken
-        eval `ssh-agent`
-        ssh-add ~/.ssh/<secret-uuid-1>
-        ln -s ~/.ssh/<secret-uuid-2> ~/.ssh/id_rsa.pub
-        scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
-{% endhighlight %}
-
-##### Sources
-
-Specify what repo to clone. The `https` schema is used to define the repo URL.
-
-{% highlight yaml %}
-sources:
-  - 'https://github.com/<username>/<repo>.git'
-{% endhighlight %}
-
-##### Secrets
-
-Public repos just need 2 uuids i.e. the deploy server key pair.
-
-{% highlight yaml %}
-secrets:
-  - <secret-uuid-1>
-  - <secret-uuid-2>
-{% endhighlight %}
+Sourcehut is a CI/CD tool with a different take on build systems. Although it is still an early stage project, the simplicity it offers is worth a try, especially for side projects.
 
 [builds.sr.ht]: https://builds.sr.ht
 [builds.sr.ht-secrets]: https://builds.sr.ht/secrets
