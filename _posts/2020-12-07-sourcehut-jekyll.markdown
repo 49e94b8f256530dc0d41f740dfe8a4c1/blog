@@ -58,7 +58,15 @@ The following section details how to achieve this with a public repo.
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
-##### Sources
+#### Image
+
+[builds.sr.ht][builds.sr.ht]{:target="\_blank"} offers a ton of images to choose from. `archlinux` was chosen because of its relatively superior documentation and near vanilla/as close to possible to upstream packages.
+
+{% highlight yaml %}
+image: archlinux
+{% endhighlight %}
+
+#### Sources
 
 Specify what repo to clone. The `https` schema is used to define the repo URL.
 
@@ -67,7 +75,7 @@ sources:
   - 'https://github.com/<username>/<repo>.git'
 {% endhighlight %}
 
-##### Secrets
+#### Secrets
 
 Public repos just need 2 uuids i.e. the deploy server key pair.
 
@@ -76,6 +84,23 @@ secrets:
   - <secret-uuid-1>
   - <secret-uuid-2>
 {% endhighlight %}
+
+#### Packages
+
+Install any packages needed as dependencies.
+
+{% highlight yaml %}
+packages:
+  - ruby
+  - nodejs-lts-fermium
+{% endhighlight %}
+
+This is the equivalent of
+
+{% highlight bash %}
+  sudo pacman -S ruby nodejs-lts-fermium
+{% endhighlight %}
+
 
 ## Private repositories
 
@@ -124,14 +149,6 @@ tasks:
 
 Although a general description of the build manifest schema can be found [here][man.builds.sr.ht-build-manifests]{:target="\_blank"}, I'll continue by detailing the Jekyll specific configuration options below.
 
-#### Image
-
-[builds.sr.ht][builds.sr.ht]{:target="\_blank"} offers a ton of images to choose from. `archlinux` was chosen because of its relatively superior documentation and near vanilla/as close to possible to upstream packages.
-
-{% highlight yaml %}
-image: archlinux
-{% endhighlight %}
-
 #### Sources
 
 Specify what repo to clone. The `ssh` schema is used if the repo in question is private, otherwise use the `https` schema.
@@ -168,24 +185,7 @@ Copy the public key over to the deploy server with `ssh-copy-id`
   ssh-copy-id -i ~/.ssh/id_rsa $DEPLOY_USER@$DEPLOY_HOST
 {% endhighlight %}
 
-> NOTE:
-> The private key needed for `git clone` should occupy the first slot.
-
-#### Packages
-
-Install any packages needed as dependencies.
-
-{% highlight yaml %}
-packages:
-  - ruby
-  - nodejs-lts-fermium
-{% endhighlight %}
-
-This is the equivalent of
-
-{% highlight bash %}
-  sudo pacman -S ruby nodejs-lts-fermium
-{% endhighlight %}
+> NOTE: The private key needed for `git clone` should occupy the first slot.
 
 #### Tasks
 
@@ -213,8 +213,8 @@ YAML list of command line instructions needed to successfully run the build.
         DEPLOY_HOST=156.116.53.2
         DEPLOY_USER=myusername
         eval `ssh-agent`
-        ssh-add ~/.ssh/b03d783e-d793-479d-8558-082abb0ab74a
-        ln -s ~/.ssh/7619d574-cfe1-4a08-9a1d-df3a5499c31e ~/.ssh/id_rsa.pub
+        ssh-add ~/.ssh/<secret-uuid-2>
+        ln -s ~/.ssh/<secret-uuid-3> ~/.ssh/id_rsa.pub
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
