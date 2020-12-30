@@ -58,9 +58,10 @@ The following section details how to achieve this with a public repo.
         scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
 {% endhighlight %}
 
+Although a general description of the build manifest schema can be found [here][man.builds.sr.ht-build-manifests]{:target="\_blank"}, I'll continue by detailing the Jekyll specific configuration options below.
 #### Image
 
-[builds.sr.ht][builds.sr.ht]{:target="\_blank"} offers a ton of images to choose from. `archlinux` was chosen because of its relatively superior documentation and near vanilla/as close to possible to upstream packages.
+[builds.sr.ht][builds.sr.ht]{:target="\_blank"} offers a ton of images to choose from. This tutorial went with`archlinux`.
 
 {% highlight yaml %}
 image: archlinux
@@ -102,9 +103,37 @@ This is the equivalent of
 {% endhighlight %}
 
 
+#### Tasks
+
+This YAML list contains the actual build steps.
+
+{% highlight yaml %}
+  tasks:
+      - setup: |
+          ruby -v
+          gem -v
+          export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+          gem install --user-install bundler
+          cd blog
+          sudo chown -R $(whoami) ~/.gem/*
+          bundle install 
+      - build: |
+          cd blog
+          export PATH=$(ruby -e 'puts Gem.user_dir')/bin:$PATH
+          bundle exec jekyll build
+      - deploy: |
+          cd blog
+          DEPLOY_HOST=168.119.234.216
+          DEPLOY_USER=ken
+          eval `ssh-agent`
+          ssh-add ~/.ssh/<secret-uuid-1>
+          ln -s ~/.ssh/<secret-uuid-2> ~/.ssh/id_rsa.pub
+          scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
+{% endhighlight %}
+
 ## Private repositories
 
-The following section details how to achieve this with a private repo.
+The following section details how to achieve this goal when a private repo is involved.
 
 ### Defining the build manifest
 
@@ -146,8 +175,6 @@ tasks:
       ln -s ~/.ssh/<secret-uuid-3> ~/.ssh/id_rsa.pub
       scp -o StrictHostKeyChecking=no -rv _site/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/html/blog
   {% endhighlight %}
-
-Although a general description of the build manifest schema can be found [here][man.builds.sr.ht-build-manifests]{:target="\_blank"}, I'll continue by detailing the Jekyll specific configuration options below.
 
 #### Sources
 
